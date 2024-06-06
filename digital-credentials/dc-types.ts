@@ -1,5 +1,3 @@
-
-
 export type ProviderType = "default" | "oid4vp";
 
 /**
