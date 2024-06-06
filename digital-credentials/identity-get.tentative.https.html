@@ -99,10 +99,7 @@
     const abortController = new AbortController();
     const { signal } = abortController;
     abortController.abort();
-    for (const options of [
-      { signal },
-      { signal, ...makeGetOptions([]) },
-    ]) {
+    for (const options of [{ signal }, { signal, ...makeGetOptions([]) }]) {
       await promise_rejects_dom(
         t,
         "AbortError",
@@ -116,10 +113,7 @@
     const abortController = new iframeWindow.AbortController();
     const { signal } = abortController;
     abortController.abort();
-    for (const options of [
-      { signal },
-      { signal, ...makeGetOptions([]) },
-    ]) {
+    for (const options of [{ signal }, { signal, ...makeGetOptions([]) }]) {
       await promise_rejects_dom(
         t,
         "AbortError",
@@ -130,7 +124,7 @@
   }, "navigator.identity.get() promise is rejected if called with an aborted signal in same-origin iframe.");
 
   promise_test(async (t) => {
-    for (const options of [undefined, {}, makeGetOptions([]) ]) {
+    for (const options of [undefined, {}, makeGetOptions([])]) {
       const result = await sendMessage(iframeCrossOrigin, {
         abort: "before",
         action: "get",

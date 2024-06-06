@@ -28,8 +28,12 @@ export function makeGetOptions(providersToUse = ["default"]) {
   }
   return { digital: { providers } };
 }
-
-// Representation of https://wicg.github.io/digital-credentials/#the-identityrequestprovider-dictionary
+/**
+ *
+ * @param {string} protocol
+ * @param {object} request
+ * @returns {IdentityRequestProvider}
+ */
 function makeIdentityRequestProvider(protocol = "protocol", request = {}) {
   return {
     protocol,
@@ -37,7 +41,10 @@ function makeIdentityRequestProvider(protocol = "protocol", request = {}) {
   };
 }
 
-// Representation of a digital identity object with an OpenID4VP provider
+/**
+ * Representation of a digital identity object with an OpenID4VP provider
+ * @returns {IdentityRequestProvider}
+ **/
 function makeOID4VPDict() {
   return makeIdentityRequestProvider("openid4vp", {
     // Canonical example of an OpenID4VP request coming soon.
@@ -48,13 +55,19 @@ function makeOID4VPDict() {
  * @type {SendMessage}
  **/
 export function sendMessage(iframe, data) {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     window.addEventListener("message", function messageListener(event) {
       if (event.source === iframe.contentWindow) {
         window.removeEventListener("message", messageListener);
         resolve(event.data);
       }
     });
-    iframe.contentWindow?.postMessage(data, "*");
+    if (!iframe.contentWindow) {
+      reject(
+        new Error("iframe.contentWindow is undefined, cannot send message.")
+      );
+      return;
+    }
+    iframe.contentWindow.postMessage(data, "*");
   });
 }
