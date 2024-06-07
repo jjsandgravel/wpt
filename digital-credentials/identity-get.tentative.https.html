@@ -12,24 +12,19 @@
   <iframe id="cross-origin"></iframe>
 </body>
 <script type="module">
-  import { makeGetOptions, sendMessage } from "./support/helper.js";
+  import { makeGetOptions, sendMessage, loadIFrame } from "./support/helper.js";
 
   const iframeSameOrigin = document.querySelector("iframe#same-origin");
   const iframeCrossOrigin = document.querySelector("iframe#cross-origin");
 
   promise_setup(async () => {
+    const hostInfo = get_host_info();
     await Promise.all([
-      new Promise((resolve, reject) => {
-        const hostInfo = get_host_info();
-        iframeCrossOrigin.onload = resolve;
-        iframeCrossOrigin.onerror = reject;
-        iframeCrossOrigin.src = `${hostInfo.HTTPS_REMOTE_ORIGIN}/digital-credentials/support/iframe.html`;
-      }),
-      new Promise((resolve, reject) => {
-        iframeSameOrigin.onload = resolve;
-        iframeSameOrigin.onerror = reject;
-        iframeSameOrigin.src = "/digital-credentials/support/iframe.html";
-      }),
+      loadIframe(
+        iframeCrossOrigin,
+        `${hostInfo.HTTPS_REMOTE_ORIGIN}/digital-credentials/support/iframe.html`
+      ),
+      loadIframe(iframeSameOrigin, "/digital-credentials/support/iframe.html"),
     ]);
   });
 

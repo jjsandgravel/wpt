@@ -13,25 +13,20 @@
 </body>
 
 <script type="module">
-  import { sendMessage } from "./support/helper.js";
+  import { sendMessage, loadIframe } from "./support/helper.js";
 
   const iframeSameOrigin = document.querySelector("iframe#same-origin");
   const iframeCrossOrigin = document.querySelector("iframe#cross-origin");
   const mediations = ["silent", "optional", "conditional", "required"];
 
   promise_setup(async () => {
+    const hostInfo = get_host_info();
     await Promise.all([
-      new Promise((resolve, reject) => {
-        const hostInfo = get_host_info();
-        iframeCrossOrigin.onload = resolve;
-        iframeCrossOrigin.onerror = reject;
-        iframeCrossOrigin.src = `${hostInfo.HTTPS_REMOTE_ORIGIN}/digital-credentials/support/iframe.html`;
-      }),
-      new Promise((resolve, reject) => {
-        iframeSameOrigin.onload = resolve;
-        iframeSameOrigin.onerror = reject;
-        iframeSameOrigin.src = "/digital-credentials/support/iframe.html";
-      }),
+      loadIframe(
+        iframeCrossOrigin,
+        `${hostInfo.HTTPS_REMOTE_ORIGIN}/digital-credentials/support/iframe.html`
+      ),
+      loadIframe(iframeSameOrigin, "/digital-credentials/support/iframe.html"),
     ]);
   });
 
@@ -69,7 +64,7 @@
 
   promise_test(async () => {
     for (const mediation of mediations) {
-      const result  = await sendMessage(iframeCrossOrigin, {
+      const result = await sendMessage(iframeCrossOrigin, {
         action: "create",
         request: { mediation },
       });
@@ -106,7 +101,7 @@
   }, "navigator.identity.create() rejects if called with an aborted signal in same-origin iframe.");
 
   promise_test(async (t) => {
-    const result  = await sendMessage(iframeCrossOrigin, {
+    const result = await sendMessage(iframeCrossOrigin, {
       action: "create",
       abort: "before",
     });
